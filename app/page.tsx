@@ -20,7 +20,10 @@ const Home = async () => {
             <h2 className="text-xl font-semibold">{blog.title}</h2>
             <p className="text-gray-600">{blog.description}</p>
             <time className="text-sm text-gray-400">
-                  {new Date(blog.date).toLocaleDateString("ja-JP")}
+                  作成: {new Date(blog.date).toLocaleDateString("ja-JP")}
+            </time>
+            <time className="text-sm text-gray-400 ml-4">
+                  更新: {new Date(blog.updatedAt).toLocaleDateString("ja-JP")}
             </time>
             </Link>
           </li>        
