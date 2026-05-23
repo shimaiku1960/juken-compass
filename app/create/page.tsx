@@ -7,10 +7,12 @@ import toast, { Toaster } from "react-hot-toast";
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const res = await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -43,8 +45,8 @@ const CreatePost = () => {
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border p-2 rounded"
         />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          作成
+        <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50">
+          {loading ? "作成中..." : "作成"}
         </button>
       </form>
     </main>

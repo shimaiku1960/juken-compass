@@ -8,6 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 const EditPost = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const params = useParams();
   const id = params.id;
@@ -24,8 +25,9 @@ const EditPost = () => {
 
 
   const handleSubmit = async (e: React.FormEvent) => {                                                                                                       
-    e.preventDefault();                                                                                                                                      
-    const res = await fetch(`/api/posts/${id}`, {                                                                                                          
+    e.preventDefault();
+    setLoading(true);
+    const res = await fetch(`/api/posts/${id}`, {
       method: "PUT",                                                                                                                                         
       headers: { "Content-Type": "application/json" },                                                                                                       
       body: JSON.stringify({ title, description }),                                                                                                        
@@ -70,13 +72,13 @@ const EditPost = () => {
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border p-2 rounded"
         />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          更新
+        <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50">
+          {loading ? "更新中..." : "更新"}
         </button>
       </form>
      
-      <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded mt-4">                                                               
-        削除                                                                                                                                                 
+      <button onClick={handleDelete} disabled={loading} className="bg-red-500 text-white px-4 py-2 rounded mt-4 disabled:opacity-50">
+        削除
       </button>                                                                                                                                              
     </main>                                                                                                                                                  
   );
