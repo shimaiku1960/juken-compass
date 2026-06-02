@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
 
 export const login = async (formData: FormData) => {
   const supabase = await createClient();
@@ -13,7 +14,24 @@ export const login = async (formData: FormData) => {
     redirect("/login?error=" + encodeURIComponent(error.message));
   }
 
-  redirect("/")
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    const existingProfile = await prisma.profile.findUnique({
+      where: { id: user.id },
+    });
+
+    if (!existingProfile) {
+      await prisma.profile.create({
+        data: {
+          id: user.id,
+          nickname: user.email?.split("@")[0] ?? "名無し",
+        },
+      });
+    }
+  }
+
+  redirect("/");
 
 }
 
