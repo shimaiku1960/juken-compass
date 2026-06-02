@@ -10,7 +10,8 @@ export const PUT = async (request: Request) => {
         return NextResponse.json({ error: "未認証" }, { status: 401 });
       }                                                                                                  
      
-      const { nickname } = await request.json();                                                         
+      const { nickname } = await request.json();     
+                                                     
                                                                                                        
       const profile = await prisma.profile.update({
         where: { id: user.id },                                                                          
