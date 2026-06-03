@@ -18,12 +18,17 @@ const ProfileEdit = ({ currentNickname }: { currentNickname: string }) => {
       body: JSON.stringify({ nickname }),
     });
 
-    if (res.ok) {
-      toast.success("更新しました！");
-      router.refresh();
-    } else {
-      toast.error("更新に失敗しました");
-    }
+                                                                                              
+  if (res.ok) {
+    toast.success("更新しました！");
+    router.refresh();                         
+  } else {                                
+    const data = await res.json();
+    toast.error(data.error || "更新に失敗しました");                                         
+  }
+               
+
+   
     setLoading(false);
   };
 
