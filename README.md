@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Study Log App
 
-## Getting Started
+学習記録を管理するための Web アプリケーション。ブログ形式で学習内容を投稿・編集・削除でき、ユーザー認証とプロフィール管理機能を備えています。
 
-First, run the development server:
+## テックスタック
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Next.js 16 (App Router) |
+| UI | React 19 |
+| 言語 | TypeScript |
+| スタイリング | Tailwind CSS v4 |
+| ORM | Prisma 7 |
+| データベース | PostgreSQL |
+| 認証 | Supabase Auth |
+| バリデーション | Zod |
+
+## 機能
+
+- **記事管理** — 学習記録の作成・編集・削除（CRUD）
+- **ユーザー認証** — メール/パスワードによるサインアップ・ログイン・ログアウト
+- **プロフィール管理** — ニックネームの表示・編集
+- **ルート保護** — 未認証ユーザーのリダイレクト
+
+## セットアップ
+
+### 前提条件
+
+- Node.js 18 以上
+- PostgreSQL
+- Supabase プロジェクト（認証用）
+
+### 環境変数
+
+プロジェクトルートに `.env` ファイルを作成し、以下を設定してください：
+
+```
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### インストールと起動
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 依存関係のインストール
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Prisma Client の生成
+npx prisma generate
 
-## Learn More
+# データベースマイグレーション
+npx prisma migrate deploy
 
-To learn more about Next.js, take a look at the following resources:
+# 開発サーバーの起動
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+http://localhost:3000 でアプリにアクセスできます。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## npm scripts
 
-## Deploy on Vercel
+| コマンド | 説明 |
+|---------|------|
+| `npm run dev` | 開発サーバー起動 |
+| `npm run build` | Prisma 生成 + マイグレーション + 本番ビルド |
+| `npm run start` | 本番サーバー起動 |
+| `npm run lint` | ESLint によるコード検査 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## プロジェクト構成
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+├── page.tsx              # トップページ（記事一覧）
+├── login/                # ログインページ
+├── signup/               # サインアップページ
+├── create/               # 記事作成ページ
+├── edit/[id]/            # 記事編集ページ
+├── profile/              # プロフィールページ
+├── auth/                 # 認証関連（Server Actions / コールバック）
+├── api/                  # API ルート
+│   ├── posts/            # 記事 CRUD
+│   └── profile/          # プロフィール更新
+└── components/           # 共通コンポーネント
+
+lib/
+├── prisma.ts             # Prisma クライアント
+└── supabase/             # Supabase クライアント（client / server / middleware）
+
+prisma/
+├── schema.prisma         # データベーススキーマ
+└── migrations/           # マイグレーションファイル
+```
+
+## データベース
+
+### モデル
+
+- **Post** — 記事（title, description, date, updatedAt）
+- **Profile** — ユーザープロフィール（Supabase Auth と連携）
+- **StudyLog** — 学習ログ（date, minutes, category, memo）※今後実装予定
