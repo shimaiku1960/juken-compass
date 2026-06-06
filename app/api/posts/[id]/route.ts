@@ -6,7 +6,7 @@ export const GET = async (
     { params }: { params: Promise<{ id: string }> }
 ) => {
     const { id } = await params;
-    const post = await prisma.user.findUnique({
+    const post = await prisma.post.findUnique({
         where: { id: Number(id) },
     });
     return NextResponse.json(post);
@@ -18,7 +18,7 @@ export const PUT = async (
 ) => {
     const { id } = await params;
     const { title, description } = await request.json();
-    const post = await prisma.user.update({
+    const post = await prisma.post.update({
         where: { id: Number(id) },
         data: { title, description },
     });
@@ -30,7 +30,7 @@ export const DELETE = async (
     { params }: { params: Promise<{ id: string }> }
 ) => {
     const { id } = await params;
-    await prisma.user.delete({
+    await prisma.post.delete({
         where: { id: Number(id) },
     });
     return NextResponse.json({ message: "削除しました" });
