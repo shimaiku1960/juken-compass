@@ -32,6 +32,10 @@ export const updateSession = async (request: NextRequest) => {
     (path) => request.nextUrl.pathname === path
   );
 
+  if (!user && request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "未認証" }, { status: 401 });
+  }
+
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

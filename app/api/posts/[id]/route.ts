@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export const GET = async (
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: "未認証" }, { status: 401 });
+    }
+
     const { id } = await params;
     const post = await prisma.post.findUnique({
         where: { id: Number(id) },
@@ -16,6 +24,13 @@ export const PUT = async (
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: "未認証" }, { status: 401 });
+    }
+
     const { id } = await params;
     const { title, description } = await request.json();
     const post = await prisma.post.update({
@@ -29,6 +44,13 @@ export const DELETE = async (
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: "未認証" }, { status: 401 });
+    }
+
     const { id } = await params;
     await prisma.post.delete({
         where: { id: Number(id) },
