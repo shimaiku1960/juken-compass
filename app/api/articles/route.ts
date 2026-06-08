@@ -11,7 +11,7 @@ export const POST = async (request: Request) => {
   }
 
   const { title, description } = await request.json();
-  const post = await prisma.post.create({
+  const post = await prisma.article.create({
     data: { title, description, date: new Date() },
   });
   return NextResponse.json(post);

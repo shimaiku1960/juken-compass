@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 
 
-const EditPost = () => {
+const EditArticle = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,20 +14,20 @@ const EditPost = () => {
   const id = params.id;
 
   useEffect(() => {                                                                                                                                          
-    const fetchPost = async () => {                                                                                                                          
-      const res = await fetch(`/api/posts/${id}`);                                                                                                           
+    const fetchArticle = async () => {                                                                                                                          
+      const res = await fetch(`/api/articles/${id}`);                                                                                                           
       const data = await res.json();                                                                                                                         
       setTitle(data.title);                                                                                                                                  
       setDescription(data.description);                                                                                                                      
     };                                                                                                                                                       
-    fetchPost();                                                                                                                                           
+    fetchArticle();                                                                                                                                           
   }, [id]);   
 
 
   const handleSubmit = async (e: React.FormEvent) => {                                                                                                       
     e.preventDefault();
     setLoading(true);
-    const res = await fetch(`/api/posts/${id}`, {
+    const res = await fetch(`/api/articles/${id}`, {
       method: "PUT",                                                                                                                                         
       headers: { "Content-Type": "application/json" },                                                                                                       
       body: JSON.stringify({ title, description }),                                                                                                        
@@ -42,7 +42,7 @@ const EditPost = () => {
   };
 
   const handleDelete = async () => {
-    const res = await fetch(`/api/posts/${id}`, {
+    const res = await fetch(`/api/articles/${id}`, {
       method: "DELETE",
     });
 
@@ -84,4 +84,4 @@ const EditPost = () => {
   );
 };
 
-export default EditPost;
+export default EditArticle;

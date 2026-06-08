@@ -12,7 +12,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Post {
+model Article {
   id          Int      @id @default(autoincrement())
   title       String
   description String
@@ -25,6 +25,17 @@ model Profile {
   nickname  String
   createdAt DateTime   @default(now())
   studyLogs StudyLog[]
+  todos     Todo[]
+}
+
+model Todo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  completed Boolean  @default(false)
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
 }
 
 model StudyLog {
