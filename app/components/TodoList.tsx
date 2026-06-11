@@ -33,14 +33,19 @@ const TodoList = ({ initialTodos }: { initialTodos: Todo[] }) => {
   };
 
   const toggleTodo = async (id: number, completed: boolean) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !completed } : todo
+      )
+    );
+
     await fetch(`/api/todos/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ completed: !completed }),
     });
-
-    fetchTodos();
   };
+
 
   const deleteTodo = async (id: number) => {
     await fetch(`/api/todos/${id}`, {
