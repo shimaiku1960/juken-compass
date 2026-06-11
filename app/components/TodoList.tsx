@@ -54,27 +54,27 @@ const TodoList = () => {
   };
   return (
     <div>
-      <h1>Todoリスト</h1>
-
-      <div>
+      <div className="flex gap-2 mb-6">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="新しいTodoを入力"
+          className="flex-1 border border-gray-300 rounded px-3 py-2"
         />
-        <button onClick={addTodo}>追加</button>
+        <button onClick={addTodo} className="bg-blue-500 text-white px-4 py-2 rounded                                
+  hover:bg-blue-600">追加</button>
       </div>
-      <ul>                                                                                                                      
+      <ul className="space-y-3">                                                                                                                      
           {todos.map((todo) => (                                                                                                  
-            <li key={todo.id}>                                                                                                    
+            <li key={todo.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded">                                                                                                    
               <input
                 type="checkbox"                                                                                                   
                 checked={todo.completed}                                                                                          
                 onChange={() => toggleTodo(todo.id, todo.completed)}                                                              
               />                                                                                                                
-              <span>{todo.title}</span>
-              <button onClick={() => deleteTodo(todo.id)}>削除</button>
+              <span className="flex-1">{todo.title}</span>
+              <button onClick={() => deleteTodo(todo.id)} className="text-red-500 hover:text-red-700">削除</button>
             </li>                         
           ))}
         </ul> 
