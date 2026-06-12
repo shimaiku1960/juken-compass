@@ -1,6 +1,6 @@
 # Study Log App
 
-学習記録を管理するための Web アプリケーション。ブログ形式で学習内容を投稿・編集・削除でき、ユーザー認証とプロフィール管理機能を備えています。
+学習記録を管理するための Web アプリケーション。microCMS でブログ記事を管理し、Todo リストで学習タスクを追跡できます。ユーザー認証とプロフィール管理機能を備えています。
 
 ## テックスタック
 
@@ -10,6 +10,7 @@
 | UI | React 19 |
 | 言語 | TypeScript |
 | スタイリング | Tailwind CSS v4 |
+| CMS | microCMS |
 | ORM | Prisma 7 |
 | データベース | PostgreSQL |
 | 認証 | Supabase Auth |
@@ -17,7 +18,8 @@
 
 ## 機能
 
-- **記事管理** — 学習記録の作成・編集・削除（CRUD）
+- **ブログ記事** — microCMS で管理する記事の一覧表示・詳細表示
+- **Todo リスト** — 学習タスクの追加・完了切替・削除（楽観的更新）
 - **ユーザー認証** — メール/パスワードによるサインアップ・ログイン・ログアウト
 - **プロフィール管理** — ニックネームの表示・編集
 - **ルート保護** — 未認証ユーザーのリダイレクト
@@ -29,6 +31,7 @@
 - Node.js 18 以上
 - PostgreSQL
 - Supabase プロジェクト（認証用）
+- microCMS アカウント（ブログ管理用）
 
 ### 環境変数
 
@@ -38,6 +41,8 @@
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+MICROCMS_API_KEY="your-microcms-api-key"
+MICROCMS_SERVICE_DOMAIN="your-service-domain"
 ```
 
 ### インストールと起動
@@ -71,19 +76,20 @@ http://localhost:3000 でアプリにアクセスできます。
 
 ```
 app/
-├── page.tsx              # トップページ（記事一覧）
+├── page.tsx              # トップページ（記事一覧 / microCMS）
+├── articles/[id]/        # 記事詳細ページ
+├── todos/                # Todo リストページ
 ├── login/                # ログインページ
 ├── signup/               # サインアップページ
-├── create/               # 記事作成ページ
-├── edit/[id]/            # 記事編集ページ
 ├── profile/              # プロフィールページ
 ├── auth/                 # 認証関連（Server Actions / コールバック）
 ├── api/                  # API ルート
-│   ├── posts/            # 記事 CRUD
+│   ├── todos/            # Todo CRUD
 │   └── profile/          # プロフィール更新
 └── components/           # 共通コンポーネント
 
 lib/
+├── microcms.ts           # microCMS クライアント
 ├── prisma.ts             # Prisma クライアント
 └── supabase/             # Supabase クライアント（client / server / middleware）
 
@@ -96,6 +102,6 @@ prisma/
 
 ### モデル
 
-- **Post** — 記事（title, description, date, updatedAt）
 - **Profile** — ユーザープロフィール（Supabase Auth と連携）
+- **Todo** — 学習タスク（title, completed, date / Profile にリレーション）
 - **StudyLog** — 学習ログ（date, minutes, category, memo）※今後実装予定
