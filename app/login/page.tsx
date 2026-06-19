@@ -4,13 +4,16 @@ import { login } from "@/app/auth/actions";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
   return (
-    <main className="mx-auto max-w-md p-8">
+    <main className="w-full mx-auto max-w-md p-8">
       <h1 className="text-3xl font-bold mb-6">ログイン</h1>
 
       {error && (
@@ -18,40 +21,30 @@ function LoginForm() {
       )}
 
       <form action={login} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            メールアドレス
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium
+  mb-1">
+              メールアドレス
+            </label>
+            <Input id="email" name="email" type="email" required />
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
-            パスワード
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium
+  mb-1">
+              パスワード
+            </label>
+            <Input id="password" name="password" type="password" required
+  minLength={6} />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          ログイン
-        </button>
-      </form>
+          <Button type="submit" className="w-full">
+            ログイン
+          </Button>
+        </form>
+
+
+     
 
       <p className="mt-4 text-sm text-gray-600">
         アカウントがない方は{" "}

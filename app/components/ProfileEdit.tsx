@@ -1,56 +1,70 @@
+
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";               
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { profileSchema, type ProfileInput } from
+"@/lib/validations/profile";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { toast } from "sonner";
 
-const ProfileEdit = ({ currentNickname }: { currentNickname: string }) => {
-  const [nickname, setNickname] = useState(currentNickname);
-  const [loading, setLoading] = useState(false);  
-  const router = useRouter();  
+const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
+{
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<ProfileInput>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      nickname: currentNickname,
+    },
+  });
+
+  const onSubmit = async (data: ProfileInput) => {
     const res = await fetch("/api/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname }),
+      body: JSON.stringify(data),
     });
 
-                                                                                              
-  if (res.ok) {
-    toast.success("更新しました！");
-    router.refresh();                         
-  } else {                                
-    const data = await res.json();
-    toast.error(data.error || "更新に失敗しました");                                         
-  }
-               
-
-   
-    setLoading(false);
+    if (res.ok) {
+      toast.success("更新しました！");
+      router.refresh();
+    } else {
+      const result = await res.json();
+      toast.error(result.error || "更新に失敗しました");
+    }
   };
 
-
-
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="text"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)} 
-        className="border rounded px-3 py-2 flex-1"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-      >
-        {loading ? "更新中..." : "更新"}
-      </button>
-    </form>
-
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2
+items-start">
+        <FormField  
+          control={form.control}
+          name="nickname"
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "更新中..." : "更新"}
+        </Button>
+      </form>
+    </Form>
   );
 };
 
