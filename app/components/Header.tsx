@@ -14,8 +14,9 @@ const Header = async () => {
       <nav className="flex gap-4 items-center">                                                      
         {user ? (                           
           <> 
-            <Link href="/todos" className="text-blue-500 hover:underline">
-              Todoリスト
+         
+            <Link href="/goals" className="text-blue-500 hover:underline">
+              ゴール
             </Link>
             <Link href="/profile" className="text-blue-500 hover:underline">                       
               プロフィール                                                                           

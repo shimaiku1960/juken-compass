@@ -25,18 +25,11 @@ model Profile {
   nickname  String
   createdAt DateTime   @default(now())
   studyLogs StudyLog[]
-  todos     Todo[]
+  finalGoals FinalGoal[] 
+  subjects   Subject[]
 }
 
-model Todo {
-  id        Int      @id @default(autoincrement())
-  title     String
-  completed Boolean  @default(false)
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
-  profileId String
-  profile   Profile  @relation(fields: [profileId], references: [id])
-}
+
 
 model StudyLog {
   id        Int      @id @default(autoincrement())
@@ -47,3 +40,72 @@ model StudyLog {
   profileId String
   profile   Profile  @relation(fields: [profileId], references: [id])
 }
+
+model FinalGoal {                                                                                                                                          
+  id        Int      @id @default(autoincrement())                                                                                                         
+  title     String                                                                                                                                         
+  examDate  DateTime                                                                                                                                       
+  createdAt DateTime @default(now())                                                                                                                       
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])                                                                                      
+                                                                                                                                                           
+  subjectWeights SubjectWeight[]                                                                                                                           
+}
+
+model Subject {                                                                                                                                            
+  id        Int      @id @default(autoincrement())                                                                                                           
+  name      String                                                                                                                                           
+  createdAt DateTime @default(now())                                                                                                                         
+  profileId String                                                                                                                                           
+  profile   Profile  @relation(fields: [profileId], references: [id])                                                                                      
+
+  subjectWeights    SubjectWeight[]
+  intermediateGoals IntermediateGoal[]
+}  
+
+
+model SubjectWeight {
+  id          Int       @id @default(autoincrement())
+  weight      Int
+  finalGoalId Int
+  finalGoal   FinalGoal @relation(fields: [finalGoalId], references: [id], onDelete: Cascade)
+  subjectId   Int
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([finalGoalId, subjectId])
+}
+
+model IntermediateGoal {
+  id        Int      @id @default(autoincrement())
+  title     String
+  deadline  DateTime
+  createdAt DateTime @default(now())
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  weeklyGoals WeeklyGoal[]
+}
+
+model WeeklyGoal {
+  id                 Int              @id @default(autoincrement())
+  title              String
+  weekStart          DateTime
+  createdAt          DateTime         @default(now())
+  intermediateGoalId Int
+  intermediateGoal   IntermediateGoal @relation(fields: [intermediateGoalId], references: [id], onDelete: Cascade)
+
+  dailyGoals DailyGoal[]
+}
+
+model DailyGoal {
+  id           Int        @id @default(autoincrement())
+  title        String
+  completed    Boolean    @default(false)
+  date         DateTime
+  createdAt    DateTime   @default(now())
+  weeklyGoalId Int
+  weeklyGoal   WeeklyGoal @relation(fields: [weeklyGoalId], references: [id], onDelete: Cascade)
+}     
+                 
+
+
