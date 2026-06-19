@@ -4,6 +4,8 @@ import { signup } from "@/app/auth/actions";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -11,7 +13,7 @@ function SignupForm() {
   const message = searchParams.get("message");
 
   return (
-    <main className="mx-auto max-w-md p-8">
+    <main className="w-full mx-auto max-w-md p-8">
       <h1 className="text-3xl font-bold mb-6">サインアップ</h1>
 
       {error && (
@@ -24,41 +26,30 @@ function SignupForm() {
         </p>
       )}
 
-      <form action={signup} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            メールアドレス
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+<form action={signup} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium
+  mb-1">
+              メールアドレス
+            </label>
+            <Input id="email" name="email" type="email" required />
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
-            パスワード（6文字以上）
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium
+  mb-1">
+              パスワード（6文字以上）
+            </label>
+            <Input id="password" name="password" type="password" required
+  minLength={6} />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          サインアップ
-        </button>
-      </form>
+          <Button type="submit" className="w-full">
+            サインアップ
+          </Button>
+        </form>
+
+  
 
       <p className="mt-4 text-sm text-gray-600">
         すでにアカウントをお持ちの方は{" "}
