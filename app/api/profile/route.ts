@@ -1,12 +1,9 @@
 import { createClient } from "@/lib/supabase/server";  
 import prisma from "@/lib/prisma";     
 import { NextResponse } from "next/server"; 
-import { z } from "zod";
+import { profileSchema } from "@/lib/validations/profile";
 
-const nicknameSchema = z.object({                                                          
-  nickname: z.string({ message: "ニックネームは文字列で入力してください" }).min(1,         
-"ニックネームは必須です").max(50, "50文字以内で入力してください").trim(),                  
-});   
+
 
 export const PUT = async (request: Request) => {
     const supabase = await createClient();
@@ -17,7 +14,7 @@ export const PUT = async (request: Request) => {
       }                                                                                                  
      
          const body = await request.json();                                                         
-  const result = nicknameSchema.safeParse(body);
+  const result = profileSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
