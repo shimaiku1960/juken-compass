@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";                                                                                                                                 
 import { createClient } from "@/lib/supabase/server";                                                                                                                       
 import prisma from "@/lib/prisma";                                                                                                                                          
-import { z } from "zod";                                                                                                                                                    
+import { updateGoalSchema } from "@/lib/validations/goal";                                                                                                                                                 
                                                                                                                                                                             
-const updateGoalSchema = z.object({                                                                                                                                         
-  title: z.string().min(1).optional(),
-  examDate: z.string().datetime().optional(),                                                                                                                               
-});                                                                                                                                                                       
+                                                                                                                                                                     
 
 export async function PUT(
   request: Request,
