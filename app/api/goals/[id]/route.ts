@@ -36,8 +36,7 @@ export async function PUT(
   const updated = await prisma.finalGoal.update({                                                                                                                           
     where: { id: Number(id) },                                                                                                                                            
     data: {
-      ...(parsed.data.title && { title: parsed.data.title }),
-      ...(parsed.data.examDate && { examDate: new Date(parsed.data.examDate) }),                                                                                            
+      ...(parsed.data.facultyId && { facultyId: parsed.data.facultyId }),                                                                                            
     },
   });                                                                                                                                                                       
                                                                                                                                                                           

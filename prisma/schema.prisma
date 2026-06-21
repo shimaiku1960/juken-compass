@@ -21,15 +21,13 @@ model Article {
 }
 
 model Profile {
-  id        String     @id
-  nickname  String
-  createdAt DateTime   @default(now())
-  studyLogs StudyLog[]
-  finalGoals FinalGoal[] 
+  id         String      @id
+  nickname   String
+  createdAt  DateTime    @default(now())
+  studyLogs  StudyLog[]
+  finalGoals FinalGoal[]
   subjects   Subject[]
 }
-
-
 
 model StudyLog {
   id        Int      @id @default(autoincrement())
@@ -41,28 +39,27 @@ model StudyLog {
   profile   Profile  @relation(fields: [profileId], references: [id])
 }
 
-model FinalGoal {                                                                                                                                          
-  id        Int      @id @default(autoincrement())                                                                                                         
-  title     String                                                                                                                                         
-  examDate  DateTime                                                                                                                                       
-  createdAt DateTime @default(now())                                                                                                                       
+model FinalGoal {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
   profileId String
-  profile   Profile  @relation(fields: [profileId], references: [id])                                                                                      
-                                                                                                                                                           
-  subjectWeights SubjectWeight[]                                                                                                                           
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  facultyId Int
+  faculty   Faculty  @relation(fields: [facultyId], references: [id])
+
+  subjectWeights SubjectWeight[]
 }
 
-model Subject {                                                                                                                                            
-  id        Int      @id @default(autoincrement())                                                                                                           
-  name      String                                                                                                                                           
-  createdAt DateTime @default(now())                                                                                                                         
-  profileId String                                                                                                                                           
-  profile   Profile  @relation(fields: [profileId], references: [id])                                                                                      
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
 
   subjectWeights    SubjectWeight[]
   intermediateGoals IntermediateGoal[]
-}  
-
+}
 
 model SubjectWeight {
   id          Int       @id @default(autoincrement())
@@ -105,7 +102,23 @@ model DailyGoal {
   createdAt    DateTime   @default(now())
   weeklyGoalId Int
   weeklyGoal   WeeklyGoal @relation(fields: [weeklyGoalId], references: [id], onDelete: Cascade)
-}     
-                 
+}
 
+model University {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
 
+  faculties Faculty[]
+}
+
+model Faculty {
+  id           Int        @id @default(autoincrement())
+  name         String
+  examDate     DateTime
+  createdAt    DateTime   @default(now())
+  universityId Int
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  finalGoals FinalGoal[]
+}

@@ -16,7 +16,12 @@ export async function GET() {
 
   const goals = await prisma.finalGoal.findMany({
     where: { profileId: user.id },
-    orderBy: { examDate: "asc" },
+    orderBy: { createdAt: "asc" },
+    include: {
+      faculty: {
+        include: { university: true },
+      },
+    },
   });
 
   return NextResponse.json(goals);
@@ -39,10 +44,15 @@ export async function POST(request: Request) {
 
   const goal = await prisma.finalGoal.create({
     data: {
-      title: parsed.data.title,
-      examDate: new Date(parsed.data.examDate),
+      facultyId: parsed.data.facultyId, 
       profileId: user.id,
     },
+    include: {
+      faculty: {
+        include: { university: true },
+      },
+    },
+
   });
 
   return NextResponse.json(goal, { status: 201 });
