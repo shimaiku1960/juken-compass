@@ -10,17 +10,29 @@ export default async function GoalsPage() {
     if (!user) {
         redirect("/login");                                                                                   
       } 
+
+      const goals = await prisma.finalGoal.findMany({
+        where: { profileId: user.id },
+        include: {
+          faculty: {
+            include: { university: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+
+      const faculties = await prisma.faculty.findMany({
+        include: { university: true },
+        orderBy: { id: "asc" },
+      });
     
-      const goals = await prisma.finalGoal.findMany({           // ← 追加
-        where: { profileId: user.id },                          // ← 追加
-        orderBy: { examDate: "asc" },                           // ← 追加                                     
-      });  
+
      
     
       return (
         <div className="max-w-2xl mx-auto p-6">
           <h1 className="text-2xl font-bold mb-6">最終目標</h1>
-          <GoalList initialGoals={goals} />  
+          <GoalList initialGoals={goals}  faculties={faculties}/>  
         </div>
       );
     }
