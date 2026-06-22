@@ -51,11 +51,6 @@ const ProfilePage = async () => {
         <p className="text-sm text-gray-500">メールアドレス</p>
         <p className="text-xl">{user.email}</p>
       </div>
-      <div>
-        <p className="text-sm text-gray-500">登録日</p>
-        <p className="text-xl">{new
-  Date(profile.createdAt).toLocaleDateString("ja-JP")}</p>
-      </div>
     </CardContent>
   </Card>
 
