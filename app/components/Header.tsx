@@ -13,12 +13,8 @@ const Header = async () => {
       </Link>                                                                                        
       <nav className="flex gap-4 items-center">                                                      
         {user ? (                           
-          <> 
-         
-            <Link href="/goals" className="text-blue-500 hover:underline">
-              ゴール
-            </Link>
-            <Link href="/profile" className="text-blue-500 hover:underline">                       
+          <>
+            <Link href="/profile" className="text-blue-500 hover:underline">
               プロフィール                                                                           
             </Link>                     
             <form action={logout}>                                                                   

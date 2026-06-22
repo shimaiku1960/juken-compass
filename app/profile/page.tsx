@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";                                                
 import prisma from "@/lib/prisma";                                                                   
 import { redirect } from "next/navigation"; 
-import ProfileEdit from "@/app/components/ProfileEdit";  
+import ProfileEdit from "@/app/components/ProfileEdit";
+import GoalList from "@/app/components/GoalList";
 import { Card, CardContent } from "@/components/ui/card";
                                                                                                        
 const ProfilePage = async () => {
@@ -20,6 +21,21 @@ const ProfilePage = async () => {
     if (!profile) {
         redirect("/login");
       }
+
+    const goals = await prisma.finalGoal.findMany({
+        where: { profileId: user.id },
+        include: {
+          faculty: {
+            include: { university: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+
+    const faculties = await prisma.faculty.findMany({
+        include: { university: true },
+        orderBy: { id: "asc" },
+      });
 
 
       return (
@@ -40,6 +56,13 @@ const ProfilePage = async () => {
         <p className="text-xl">{new
   Date(profile.createdAt).toLocaleDateString("ja-JP")}</p>
       </div>
+    </CardContent>
+  </Card>
+
+  <h2 className="text-2xl font-bold mt-10 mb-4">志望校</h2>
+  <Card>
+    <CardContent>
+      <GoalList initialGoals={goals} faculties={faculties} />
     </CardContent>
   </Card>
         </main>

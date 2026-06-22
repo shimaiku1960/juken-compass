@@ -48,6 +48,8 @@ model FinalGoal {
   faculty   Faculty  @relation(fields: [facultyId], references: [id])
 
   subjectWeights SubjectWeight[]
+
+  @@unique([profileId, facultyId])
 }
 
 model Subject {

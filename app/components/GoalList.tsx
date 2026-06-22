@@ -62,8 +62,9 @@ export default function GoalList({ initialGoals, faculties }: Props) {
       setGoals((prev) => [...prev, newGoal]);
       form.reset();
       toast.success("目標を追加しました");
-    }else {
-      toast.error("追加に失敗しました");
+    } else {
+      const data = await res.json();
+      toast.error(data.error ?? "追加に失敗しました");
     }
   };
 
@@ -76,8 +77,10 @@ export default function GoalList({ initialGoals, faculties }: Props) {
       setGoals(goals.filter((goal) => goal.id !== id));
       toast.success("目標を削除しました");
     } else {
-      toast.error("削除に失敗しました");
+      const data = await res.json();
+      toast.error(data.error ?? "追加に失敗しました");
     }
+   
   };
 
 
