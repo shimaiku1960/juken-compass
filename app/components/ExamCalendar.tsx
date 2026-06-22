@@ -2,7 +2,7 @@
 
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewMonthGrid } from "@schedule-x/calendar";
-import { Temporal } from "temporal-polyfill";
+import "temporal-polyfill/global";
 import "@schedule-x/theme-default/dist/index.css";
 
 type ExamEvent = {
