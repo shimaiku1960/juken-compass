@@ -127,9 +127,6 @@ export default function GoalList({ initialGoals, faculties }: Props) {
                         {goal.faculty.university.name} {goal.faculty.name}
                       </span>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-500">
-                          {new Date(goal.faculty.examDate).toLocaleDateString("ja-JP")}
-                        </span>
                         <button
                           onClick={() => deleteGoal(goal.id)}
                           className="text-red-500 text-sm hover:underline"

@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";               
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { profileSchema, type ProfileInput } from
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
 {
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -37,6 +39,7 @@ const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
 
     if (res.ok) {
       toast.success("更新しました！");
+      setIsEditing(false);
       router.refresh();
     } else {
       const result = await res.json();
@@ -44,11 +47,28 @@ const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
     }
   };
 
+  if (!isEditing) {
+    return (
+      <div className="flex gap-2 items-center">
+        <p className="text-xl flex-1">{currentNickname}</p>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            form.reset({ nickname: currentNickname });
+            setIsEditing(true);
+          }}
+        >
+          編集
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2
-items-start">
-        <FormField  
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-start">
+        <FormField
           control={form.control}
           name="nickname"
           render={({ field }) => (
@@ -62,6 +82,13 @@ items-start">
         />
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? "更新中..." : "更新"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setIsEditing(false)}
+        >
+          キャンセル
         </Button>
       </form>
     </Form>

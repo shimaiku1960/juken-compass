@@ -8,10 +8,13 @@ const Header = async () => {
                                                                                                      
   return (                                                                                         
     <header className="border-b px-8 py-4 flex justify-between items-center">
-      <Link href="/" className="text-xl font-bold">                                                  
-        ブログ                          
+      <Link href="/" className="text-xl font-bold">
+        ダッシュボード
       </Link>                                                                                        
-      <nav className="flex gap-4 items-center">                                                      
+      <nav className="flex gap-4 items-center">
+        <Link href="/blog" className="text-blue-500 hover:underline">
+          ブログ
+        </Link>
         {user ? (                           
           <>
             <Link href="/profile" className="text-blue-500 hover:underline">
