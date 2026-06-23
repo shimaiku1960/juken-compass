@@ -31,9 +31,11 @@ model FinalGoal {
 }
 
 model University {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  prefecture String   @default("")
+  type       String   @default("")
+  createdAt  DateTime @default(now())
 
   faculties Faculty[]
 }
@@ -47,4 +49,13 @@ model Faculty {
   university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 
   finalGoals FinalGoal[]
+  tags       Tag[]
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  faculties Faculty[]
 }

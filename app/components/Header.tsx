@@ -15,11 +15,14 @@ const Header = async () => {
         <Link href="/blog" className="text-blue-500 hover:underline">
           ブログ
         </Link>
-        {user ? (                           
+        {user ? (
           <>
+            <Link href="/explore" className="text-blue-500 hover:underline">
+              大学を探す
+            </Link>
             <Link href="/profile" className="text-blue-500 hover:underline">
-              プロフィール                                                                           
-            </Link>                     
+              プロフィール
+            </Link>                
             <form action={logout}>                                                                   
               <button type="submit" className="text-red-500 hover:underline">                        
                 ログアウト

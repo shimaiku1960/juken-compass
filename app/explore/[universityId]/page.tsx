@@ -1,0 +1,74 @@
+import { createClient } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
+import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
+import FacultyList from "@/app/components/FacultyList";
+
+const UniversityDetailPage = async ({
+  params,
+}: {
+  params: Promise<{ universityId: string }>;
+}) => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { universityId } = await params;
+  const id = Number(universityId);
+  if (Number.isNaN(id)) {
+    notFound();
+  }
+
+  const university = await prisma.university.findUnique({
+    where: { id },
+    include: {
+      faculties: {
+        include: { tags: true },
+        orderBy: { id: "asc" },
+      },
+    },
+  });
+
+  if (!university) {
+    notFound();
+  }
+
+  const goals = await prisma.finalGoal.findMany({
+    where: { profileId: user.id },
+    select: { facultyId: true },
+  });
+  const registeredFacultyIds = goals.map((g) => g.facultyId);
+
+  return (
+    <main className="w-full mx-auto max-w-3xl p-8">
+      <Link
+        href="/explore"
+        className="text-sm text-blue-500 hover:underline"
+      >
+        ← 大学を探すに戻る
+      </Link>
+
+      <h1 className="text-3xl font-bold mt-4 mb-1">{university.name}</h1>
+      <p className="text-gray-500 mb-6">
+        {university.prefecture} / {university.type}
+      </p>
+
+      <h2 className="text-xl font-bold mb-4">学部</h2>
+      {university.faculties.length === 0 ? (
+        <p className="text-gray-500 text-sm">
+          この大学の学部情報はまだ準備中です。
+        </p>
+      ) : (
+        <FacultyList
+          faculties={university.faculties}
+          registeredFacultyIds={registeredFacultyIds}
+        />
+      )}
+    </main>
+  );
+};
+
+export default UniversityDetailPage;
