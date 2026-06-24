@@ -2,6 +2,8 @@ import { client, type Blog } from "@/lib/microcms";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 
+export const dynamic = "force-dynamic";
+
 const BlogPage = async () => {
   const data = await client.getList<Blog>({
     endpoint: "blogs",
