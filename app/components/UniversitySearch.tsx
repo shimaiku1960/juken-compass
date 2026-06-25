@@ -4,87 +4,70 @@ import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import PrefectureModal from "./PrefectureModal";
+import FacultyTagModal from "./FacultyTagModal";
 
 type University = {
   id: number;
   name: string;
   prefecture: string;
   type: string;
-  _count: { faculties: number };
+  facultyCount: number;
+  tagNames: string[];
 };
 
 type Props = {
   universities: University[];
 };
 
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full border px-4 py-1 text-sm transition-colors ${
-        active
-          ? "bg-blue-500 text-white border-blue-500"
-          : "bg-white text-gray-700 hover:bg-gray-50"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
+const TYPES = ["国立", "公立", "私立"];
 
 export default function UniversitySearch({ universities }: Props) {
   const [name, setName] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedPrefs, setSelectedPrefs] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
+  const [selectedPrefs, setSelectedPrefs] = useState<Set<string>>(new Set());
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
 
-  type Conditions = { name: string; types: string[]; prefs: string[] };
+  type Conditions = {
+    name: string;
+    types: Set<string>;
+    prefs: Set<string>;
+    tags: Set<string>;
+  };
   const [applied, setApplied] = useState<Conditions | null>(null);
 
-  // 選択肢は登録大学から自動抽出
-  const typeOptions = ["国立", "公立", "私立"].filter((t) =>
-    universities.some((u) => u.type === t)
-  );
-  const prefOptions = [
-    ...new Set(universities.map((u) => u.prefecture).filter(Boolean)),
-  ];
-
-  const toggle = <T,>(
-    value: T,
-    setter: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    setter((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+  const toggleType = (type: string) => {
+    setSelectedTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
   };
 
   const reset = () => {
     setName("");
-    setSelectedTypes([]);
-    setSelectedPrefs([]);
+    setSelectedTypes(new Set());
+    setSelectedPrefs(new Set());
+    setSelectedTags(new Set());
     setApplied(null);
   };
 
+  // Set が空の条件はスキップ＝絞り込まない
   const matches = (u: University, c: Conditions) => {
-    const matchName =
-      c.name.trim() === "" || u.name.includes(c.name.trim());
-    const matchType = c.types.length === 0 || c.types.includes(u.type);
-    const matchPref = c.prefs.length === 0 || c.prefs.includes(u.prefecture);
-    return matchName && matchType && matchPref;
+    if (c.name.trim() !== "" && !u.name.includes(c.name.trim())) return false;
+    if (c.types.size > 0 && !c.types.has(u.type)) return false;
+    if (c.prefs.size > 0 && !c.prefs.has(u.prefecture)) return false;
+    if (c.tags.size > 0 && !u.tagNames.some((t) => c.tags.has(t))) return false;
+    return true;
   };
 
   const draft: Conditions = {
     name,
     types: selectedTypes,
     prefs: selectedPrefs,
+    tags: selectedTags,
   };
 
   const previewCount = universities.filter((u) => matches(u, draft)).length;
@@ -101,34 +84,55 @@ export default function UniversitySearch({ universities }: Props) {
           onChange={(e) => setName(e.target.value)}
         />
 
-        <div>
-          <p className="text-sm text-gray-500 mb-2">設置区分</p>
-          <div className="flex flex-wrap gap-2">
-            {typeOptions.map((t) => (
-              <Chip
-                key={t}
-                active={selectedTypes.includes(t)}
-                onClick={() => toggle(t, setSelectedTypes)}
-              >
-                {t}
-              </Chip>
-            ))}
-          </div>
-        </div>
+        {/* フィルタチップ行：設置区分はインライン、それ以外はモーダル */}
+        <div className="flex flex-wrap gap-2">
+          {TYPES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => toggleType(t)}
+              className={`rounded-md border px-4 py-2 text-sm transition-colors ${
+                selectedTypes.has(t)
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
 
-        <div>
-          <p className="text-sm text-gray-500 mb-2">都道府県</p>
-          <div className="flex flex-wrap gap-2">
-            {prefOptions.map((p) => (
-              <Chip
-                key={p}
-                active={selectedPrefs.includes(p)}
-                onClick={() => toggle(p, setSelectedPrefs)}
-              >
-                {p}
-              </Chip>
-            ))}
-          </div>
+          <PrefectureModal value={selectedPrefs} onChange={setSelectedPrefs}>
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+            >
+              都道府県を選ぶ
+              {selectedPrefs.size > 0 && (
+                <Badge variant="secondary">{selectedPrefs.size}</Badge>
+              )}
+            </button>
+          </PrefectureModal>
+
+          <FacultyTagModal value={selectedTags} onChange={setSelectedTags}>
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+            >
+              学部系統を選ぶ
+              {selectedTags.size > 0 && (
+                <Badge variant="secondary">{selectedTags.size}</Badge>
+              )}
+            </button>
+          </FacultyTagModal>
+
+          <button
+            type="button"
+            disabled
+            title="準備中（偏差値データは後日追加予定）"
+            className="rounded-md border px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+          >
+            偏差値を選ぶ（準備中）
+          </button>
         </div>
 
         <div className="flex justify-between items-center pt-2 border-t">
@@ -151,37 +155,33 @@ export default function UniversitySearch({ universities }: Props) {
         <p className="text-gray-500 text-sm">
           条件を選んで「検索」を押してください。
         </p>
+      ) : results.length === 0 ? (
+        <p className="text-gray-500 text-sm">
+          条件に合う大学が見つかりませんでした。
+        </p>
       ) : (
-        <>
-          <ul className="space-y-2">
-            {results.map((u) => (
-              <li key={u.id}>
-                <Link
-                  href={`/explore/${u.id}`}
-                  className="border rounded px-4 py-3 flex justify-between items-center hover:bg-gray-50"
-                >
-                  <div>
-                    <p className="font-medium">{u.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {u.prefecture} / {u.type}
-                    </p>
-                  </div>
-                  <span className="text-sm text-gray-400">
-                    {u._count.faculties > 0
-                      ? `学部 ${u._count.faculties}`
-                      : "学部情報準備中"}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {results.length === 0 && (
-            <p className="text-gray-500 text-sm">
-              条件に合う大学が見つかりませんでした。
-            </p>
-          )}
-        </>
+        <ul className="space-y-2">
+          {results.map((u) => (
+            <li key={u.id}>
+              <Link
+                href={`/explore/${u.id}`}
+                className="border rounded px-4 py-3 flex justify-between items-center hover:bg-gray-50"
+              >
+                <div>
+                  <p className="font-medium">{u.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {u.prefecture} / {u.type}
+                  </p>
+                </div>
+                <span className="text-sm text-gray-400">
+                  {u.facultyCount > 0
+                    ? `学部 ${u.facultyCount}`
+                    : "学部情報準備中"}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
