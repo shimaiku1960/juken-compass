@@ -11,16 +11,28 @@ const ExplorePage = async () => {
     redirect("/login");
   }
 
-  const universities = await prisma.university.findMany({
+  const universitiesRaw = await prisma.university.findMany({
     orderBy: { name: "asc" },
     select: {
       id: true,
       name: true,
       prefecture: true,
       type: true,
-      _count: { select: { faculties: true } },
+      faculties: { select: { tags: { select: { name: true } } } },
     },
   });
+
+  // 学部系統(タグ)で絞り込めるよう、大学ごとに学部数とタグ名を集約
+  const universities = universitiesRaw.map((u) => ({
+    id: u.id,
+    name: u.name,
+    prefecture: u.prefecture,
+    type: u.type,
+    facultyCount: u.faculties.length,
+    tagNames: [
+      ...new Set(u.faculties.flatMap((f) => f.tags.map((t) => t.name))),
+    ],
+  }));
 
   return (
     <main className="w-full mx-auto max-w-3xl p-8">
