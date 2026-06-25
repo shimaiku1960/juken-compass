@@ -26,14 +26,14 @@ const ProfilePage = async () => {
         where: { profileId: user.id },
         include: {
           faculty: {
-            include: { university: true },
+            include: { university: true, tags: true },
           },
         },
         orderBy: { createdAt: "asc" },
       });
 
     const faculties = await prisma.faculty.findMany({
-        include: { university: true },
+        include: { university: true, tags: true },
         orderBy: { id: "asc" },
       });
 
@@ -42,14 +42,20 @@ const ProfilePage = async () => {
         <main className="w-full mx-auto max-w-3xl p-8">
           <h1 className="text-3xl font-bold mb-6">プロフィール</h1>
           <Card>
-    <CardContent className="space-y-4">
-      <div>
-        <p className="text-sm text-gray-500">ニックネーム</p>
+    <CardContent className="divide-y">
+      <div className="flex items-center gap-3 pb-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700">
+          {profile.nickname.charAt(0)}
+        </div>
+        <p className="font-medium">{profile.nickname}</p>
+      </div>
+      <div className="py-4">
+        <p className="text-sm text-gray-500 mb-1">ニックネーム</p>
         <ProfileEdit currentNickname={profile.nickname} />
       </div>
-      <div>
-        <p className="text-sm text-gray-500">メールアドレス</p>
-        <p className="text-xl">{user.email}</p>
+      <div className="pt-4">
+        <p className="text-sm text-gray-500 mb-1">メールアドレス</p>
+        <p className="text-base">{user.email}</p>
       </div>
     </CardContent>
   </Card>

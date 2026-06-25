@@ -26,12 +26,19 @@ const facultyData: Record<
     { name: "商学部", examDate: "2027-02-21", tags: ["商・経営系"] },
     { name: "文学部", examDate: "2027-02-17", tags: ["文・文化系"] },
     { name: "文化構想学部", examDate: "2027-02-12", tags: ["文・文化系"] },
+    { name: "基幹理工学部", examDate: "2027-02-16", tags: ["理工系", "情報系"] },
+    { name: "創造理工学部", examDate: "2027-02-16", tags: ["理工系"] },
+    { name: "先進理工学部", examDate: "2027-02-16", tags: ["理工系", "農・生命系"] },
   ],
   慶應義塾大学: [
     { name: "経済学部", examDate: "2027-02-13", tags: ["法・政経系", "商・経営系"] },
     { name: "法学部", examDate: "2027-02-16", tags: ["法・政経系"] },
     { name: "商学部", examDate: "2027-02-14", tags: ["商・経営系"] },
     { name: "文学部", examDate: "2027-02-15", tags: ["文・文化系"] },
+    { name: "理工学部", examDate: "2027-02-12", tags: ["理工系", "情報系"] },
+    { name: "薬学部", examDate: "2027-02-10", tags: ["医歯薬系"] },
+    { name: "医学部", examDate: "2027-02-19", tags: ["医歯薬系"] },
+    { name: "看護医療学部", examDate: "2027-02-11", tags: ["医歯薬系"] },
   ],
 };
 
@@ -47,7 +54,15 @@ async function main() {
   console.log(`大学を投入: ${universities.length}校`);
 
   // 2. 系統タグを upsert（重複作成を避ける）
-  const tagNames = ["法・政経系", "商・経営系", "文・文化系"];
+  const tagNames = [
+    "法・政経系",
+    "商・経営系",
+    "文・文化系",
+    "理工系",
+    "情報系",
+    "医歯薬系",
+    "農・生命系",
+  ];
   for (const name of tagNames) {
     await prisma.tag.upsert({
       where: { name },

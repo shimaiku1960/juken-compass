@@ -27,6 +27,8 @@ model FinalGoal {
   facultyId Int
   faculty   Faculty  @relation(fields: [facultyId], references: [id])
 
+  isFirstChoice Boolean @default(false)
+
   @@unique([profileId, facultyId])
 }
 

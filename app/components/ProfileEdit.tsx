@@ -1,12 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { profileSchema, type ProfileInput } from
-"@/lib/validations/profile";
+import { profileSchema, type ProfileInput } from "@/lib/validations/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,8 +16,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 
-const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
-{
+const ProfileEdit = ({ currentNickname }: { currentNickname: string }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -47,13 +44,15 @@ const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
     }
   };
 
+  // 表示モード: 値 ＋ 右端に「編集」
   if (!isEditing) {
     return (
-      <div className="flex gap-2 items-center">
-        <p className="text-xl flex-1">{currentNickname}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-lg">{currentNickname}</p>
         <Button
           type="button"
           variant="outline"
+          size="sm"
           onClick={() => {
             form.reset({ nickname: currentNickname });
             setIsEditing(true);
@@ -65,27 +64,32 @@ const ProfileEdit = ({ currentNickname }: { currentNickname: string }) =>
     );
   }
 
+  // 編集モード: その行が入力欄＋保存／キャンセルに変わる
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-start">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex items-start gap-2"
+      >
         <FormField
           control={form.control}
           name="nickname"
           render={({ field }) => (
             <FormItem className="flex-1">
               <FormControl>
-                <Input {...field} />
+                <Input autoFocus {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "更新中..." : "更新"}
+        <Button type="submit" size="sm" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "保存中..." : "保存"}
         </Button>
         <Button
           type="button"
           variant="outline"
+          size="sm"
           onClick={() => setIsEditing(false)}
         >
           キャンセル
