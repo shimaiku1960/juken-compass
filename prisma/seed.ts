@@ -13,21 +13,26 @@ const universities: UniversityRow[] = JSON.parse(
   readFileSync("data/clean/universities.json", "utf-8")
 );
 
-// 学部 → 系統タグ（中位の粒度。複数当てはまる学部は複数タグ）
-const facultyTags: Record<string, string[]> = {
-  政治経済学部: ["法・政経系", "商・経営系"],
-  法学部: ["法・政経系"],
-  商学部: ["商・経営系"],
-  文学部: ["文・文化系"],
-  文化構想学部: ["文・文化系"],
-};
-
-const facultyExamDates: Record<string, string> = {
-  政治経済学部: "2027-02-20",
-  法学部: "2027-02-15",
-  商学部: "2027-02-21",
-  文学部: "2027-02-17",
-  文化構想学部: "2027-02-12",
+// 大学ごとの学部データ（学部はここを手動で拡充していく）
+// ⚠️  examDate は2026年度入試の実績ベースの暫定値。2027年度の正式日程が
+//    各大学から発表されたら要更新（現時点では未発表のため暫定）
+const facultyData: Record<
+  string,
+  { name: string; examDate: string; tags: string[] }[]
+> = {
+  早稲田大学: [
+    { name: "政治経済学部", examDate: "2027-02-20", tags: ["法・政経系", "商・経営系"] },
+    { name: "法学部", examDate: "2027-02-15", tags: ["法・政経系"] },
+    { name: "商学部", examDate: "2027-02-21", tags: ["商・経営系"] },
+    { name: "文学部", examDate: "2027-02-17", tags: ["文・文化系"] },
+    { name: "文化構想学部", examDate: "2027-02-12", tags: ["文・文化系"] },
+  ],
+  慶應義塾大学: [
+    { name: "経済学部", examDate: "2027-02-13", tags: ["法・政経系", "商・経営系"] },
+    { name: "法学部", examDate: "2027-02-16", tags: ["法・政経系"] },
+    { name: "商学部", examDate: "2027-02-14", tags: ["商・経営系"] },
+    { name: "文学部", examDate: "2027-02-15", tags: ["文・文化系"] },
+  ],
 };
 
 async function main() {
@@ -51,33 +56,34 @@ async function main() {
     });
   }
 
-  // 3. 早稲田の学部・系統タグを投入（学部データは当面ここだけ手動で拡充）
-  const university = await prisma.university.findUniqueOrThrow({
-    where: { name: "早稲田大学" },
-  });
-
-  // 各学部を「無ければ作成・あればタグだけ付け直す」
-  for (const [name, tags] of Object.entries(facultyTags)) {
-    const existing = await prisma.faculty.findFirst({
-      where: { name, universityId: university.id },
+  // 3. 大学ごとに学部・系統タグを投入（学部データは facultyData を手動拡充）
+  for (const [universityName, faculties] of Object.entries(facultyData)) {
+    const university = await prisma.university.findUniqueOrThrow({
+      where: { name: universityName },
     });
 
-    const tagConnect = tags.map((t) => ({ name: t }));
+    for (const { name, examDate, tags } of faculties) {
+      const existing = await prisma.faculty.findFirst({
+        where: { name, universityId: university.id },
+      });
 
-    if (existing) {
-      await prisma.faculty.update({
-        where: { id: existing.id },
-        data: { tags: { set: tagConnect } },
-      });
-    } else {
-      await prisma.faculty.create({
-        data: {
-          name,
-          examDate: new Date(facultyExamDates[name]),
-          universityId: university.id,
-          tags: { connect: tagConnect },
-        },
-      });
+      const tagConnect = tags.map((t) => ({ name: t }));
+
+      if (existing) {
+        await prisma.faculty.update({
+          where: { id: existing.id },
+          data: { tags: { set: tagConnect } },
+        });
+      } else {
+        await prisma.faculty.create({
+          data: {
+            name,
+            examDate: new Date(examDate),
+            universityId: university.id,
+            tags: { connect: tagConnect },
+          },
+        });
+      }
     }
   }
 }

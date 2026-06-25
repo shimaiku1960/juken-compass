@@ -31,6 +31,9 @@ const Home = async () => {
     <main className="w-full mx-auto max-w-3xl p-8">
       <h1 className="text-3xl font-bold mb-6">ダッシュボード</h1>
       <ExamCalendar events={events} />
+      <p className="mt-4 text-sm text-gray-500">
+        ※ 表示している受験日は暫定です。正式な日程は各大学の募集要項で必ずご確認ください。
+      </p>
     </main>
   );
 };
