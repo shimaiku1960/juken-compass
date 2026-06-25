@@ -24,6 +24,9 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Lint
+        run: npx eslint --max-warnings 0
+
       - name: Type check
         run: npx tsc --noEmit
 
