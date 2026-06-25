@@ -1,46 +1,42 @@
-"use client";                                                                                             
-                                                                                                            
+"use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { goalSchema, type GoalInput } from "@/lib/validations/goal";      
+import { goalSchema, type GoalInput } from "@/lib/validations/goal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
   FormField,
-
-  
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-
+import { daysUntil, formatExamDate } from "@/lib/date";
 
 type Faculty = {
   id: number;
   name: string;
   examDate: Date;
   university: { name: string };
+  tags: { name: string }[];
 };
-                                                            
-                                                                                                          
+
 type Goal = {
   id: number;
-
-  createdAt: Date;                                                                                        
+  createdAt: Date;
   profileId: string;
+  isFirstChoice: boolean;
   faculty: Faculty;
-};                                                                                                        
-                                                                                                        
+};
+
 type Props = {
   initialGoals: Goal[];
   faculties: Faculty[];
 };
 
-export default function GoalList({ initialGoals, faculties }: Props) {                                               
+export default function GoalList({ initialGoals, faculties }: Props) {
   const [goals, setGoals] = useState(initialGoals);
 
   const form = useForm<GoalInput>({
@@ -49,7 +45,7 @@ export default function GoalList({ initialGoals, faculties }: Props) {
       facultyId: 0,
     },
   });
-           
+
   const onSubmit = async (data: GoalInput) => {
     const res = await fetch("/api/goals", {
       method: "POST",
@@ -74,76 +70,157 @@ export default function GoalList({ initialGoals, faculties }: Props) {
     });
 
     if (res.ok) {
-      setGoals(goals.filter((goal) => goal.id !== id));
+      setGoals((prev) => prev.filter((goal) => goal.id !== id));
       toast.success("目標を削除しました");
     } else {
       const data = await res.json();
-      toast.error(data.error ?? "追加に失敗しました");
+      toast.error(data.error ?? "削除に失敗しました");
     }
-   
   };
 
+  const setFirstChoice = async (id: number, value: boolean) => {
+    const res = await fetch(`/api/goals/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isFirstChoice: value }),
+    });
 
-                                                                                                          
+    if (res.ok) {
+      // 第一志望は1校まで。対象を value に、他は全部 false にする
+      setGoals((prev) =>
+        prev.map((goal) => ({
+          ...goal,
+          isFirstChoice: goal.id === id ? value : false,
+        }))
+      );
+      toast.success(value ? "第一志望に設定しました" : "第一志望を解除しました");
+    } else {
+      const data = await res.json();
+      toast.error(data.error ?? "更新に失敗しました");
+    }
+  };
+
+  // 学部セレクトを大学ごとに optgroup でまとめる
+  const facultiesByUniversity = faculties.reduce<Record<string, Faculty[]>>(
+    (acc, faculty) => {
+      const key = faculty.university.name;
+      (acc[key] ??= []).push(faculty);
+      return acc;
+    },
+    {}
+  );
+
+  const firstChoice = goals.find((goal) => goal.isFirstChoice);
+  const others = goals.filter((goal) => !goal.isFirstChoice);
+
+  const renderGoalCard = (goal: Goal) => {
+    const days = daysUntil(goal.faculty.examDate);
+    return (
+      <li
+        key={goal.id}
+        className="border rounded px-4 py-3 flex justify-between items-start"
+      >
+        <div className="space-y-1">
+          <p className="font-medium">
+            {goal.faculty.university.name} {goal.faculty.name}
+          </p>
+          <p className="text-sm text-gray-500">
+            受験日 {formatExamDate(goal.faculty.examDate)}
+            {days >= 0 && (
+              <span className="ml-2 text-blue-600">あと{days}日</span>
+            )}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {goal.faculty.tags.map((tag) => (
+              <span
+                key={tag.name}
+                className="text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5"
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => setFirstChoice(goal.id, !goal.isFirstChoice)}
+            className="text-sm hover:underline"
+            title={goal.isFirstChoice ? "第一志望を解除" : "第一志望にする"}
+          >
+            {goal.isFirstChoice ? "★ 第一志望" : "☆ 第一志望にする"}
+          </button>
+          <button
+            onClick={() => deleteGoal(goal.id)}
+            className="text-red-500 text-sm hover:underline"
+          >
+            削除
+          </button>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <div>
-          <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 mb-6 items-start">
-            <FormField
-              control={form.control}
-              name="facultyId"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <select
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className="border rounded px-3 py-2 w-full"
-                    >
-                      <option value={0}>志望学部を選択</option>
-                      {faculties.map((faculty) => (
-                        <option key={faculty.id} value={faculty.id}>
-                          {faculty.university.name} {faculty.name}
-                        </option>
-                      ))}
-                    </select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={form.formState.isSubmitting}>追加</Button>
-          </form>
-        </Form>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex gap-2 mb-6 items-start"
+        >
+          <FormField
+            control={form.control}
+            name="facultyId"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormControl>
+                  <select
+                    value={field.value}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    className="border rounded px-3 py-2 w-full"
+                  >
+                    <option value={0}>志望学部を選択</option>
+                    {Object.entries(facultiesByUniversity).map(
+                      ([universityName, list]) => (
+                        <optgroup key={universityName} label={universityName}>
+                          {list.map((faculty) => (
+                            <option key={faculty.id} value={faculty.id}>
+                              {faculty.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )
+                    )}
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            追加
+          </Button>
+        </form>
+      </Form>
 
- 
-      <ul className="space-y-2">
-          {goals.map((goal) => (
-                      <li
-                      key={goal.id}
-                      className="border rounded px-4 py-3 flex justify-between items-center"
-                    >
-                      <span className="font-medium">
-                        {goal.faculty.university.name} {goal.faculty.name}
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => deleteGoal(goal.id)}
-                          className="text-red-500 text-sm hover:underline"
-                        >
-                          削除
-                        </button>
-                      </div>
-                    </li>
-                    
-        
-          ))}
-        </ul>
-        
+      <section className="mb-6">
+        <h3 className="text-sm font-bold text-gray-500 mb-2">第一志望</h3>
+        {firstChoice ? (
+          <ul>{renderGoalCard(firstChoice)}</ul>
+        ) : (
+          <p className="text-sm text-gray-400">
+            まだ設定されていません（併願校から ☆ で設定できます）
+          </p>
+        )}
+      </section>
 
-
-
-
+      <section>
+        <h3 className="text-sm font-bold text-gray-500 mb-2">併願校</h3>
+        {others.length > 0 ? (
+          <ul className="space-y-2">{others.map(renderGoalCard)}</ul>
+        ) : (
+          <p className="text-sm text-gray-400">併願校はありません</p>
+        )}
+      </section>
     </div>
   );
 }

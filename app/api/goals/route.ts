@@ -20,7 +20,7 @@ export async function GET() {
     orderBy: { createdAt: "asc" },
     include: {
       faculty: {
-        include: { university: true },
+        include: { university: true, tags: true },
       },
     },
   });
