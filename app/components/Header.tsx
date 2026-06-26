@@ -9,7 +9,7 @@ const Header = async () => {
   return (                                                                                         
     <header className="border-b px-8 py-4 flex justify-between items-center">
       <Link href="/" className="text-xl font-bold">
-        ダッシュボード
+        受験マップ
       </Link>                                                                                        
       <nav className="flex gap-4 items-center">
         <Link href="/blog" className="text-blue-500 hover:underline">
