@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: juken-map-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: juken_map
+      MYSQL_USER: juken
+      MYSQL_PASSWORD: jukenpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

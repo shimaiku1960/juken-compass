@@ -1,10 +1,10 @@
 
 import { readFileSync } from "fs";
 import { PrismaClient } from "../app/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+  adapter: new PrismaMariaDb( process.env.DATABASE_URL! ),
 });
 
 // 全国大学マスター（scripts/transform-universities.ts が生成）
