@@ -1,10 +1,13 @@
-import Link from "next/link";                                                                        
-import { createClient } from "@/lib/supabase/server";                                                
-import { logout } from "@/app/auth/actions";                                                         
-                                                                                                     
-const Header = async () => {                                                                       
-  const supabase = await createClient();                                                             
-  const { data: { user } } = await supabase.auth.getUser();
+import Link from "next/link";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { logout } from "@/app/auth/actions";
+
+const Header = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const user = session?.user;
                                                                                                      
   return (                                                                                         
     <header className="border-b px-8 py-4 flex justify-between items-center">

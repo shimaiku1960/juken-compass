@@ -1,13 +1,15 @@
-import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import UniversitySearch from "@/app/components/UniversitySearch";
 
 const ExplorePage = async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     redirect("/login");
   }
 

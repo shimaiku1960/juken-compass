@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import prisma  from "@/lib/prisma";
 import { goalSchema } from "@/lib/validations/goal";
 import { Prisma } from "@/app/generated/prisma/client";
@@ -8,15 +9,16 @@ import { Prisma } from "@/app/generated/prisma/client";
 
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const goals = await prisma.finalGoal.findMany({
-    where: { profileId: user.id },
+    where: { userId: session.user.id },
     orderBy: { createdAt: "asc" },
     include: {
       faculty: {
@@ -29,10 +31,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
     const goal = await prisma.finalGoal.create({
       data: {
         facultyId: parsed.data.facultyId,
-        profileId: user.id,
+        userId: session.user.id,
       },
       include: {
         faculty: {

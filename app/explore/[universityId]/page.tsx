@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,10 +10,11 @@ const UniversityDetailPage = async ({
 }: {
   params: Promise<{ universityId: string }>;
 }) => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     redirect("/login");
   }
 
@@ -37,7 +39,7 @@ const UniversityDetailPage = async ({
   }
 
   const goals = await prisma.finalGoal.findMany({
-    where: { profileId: user.id },
+    where: { userId: session.user.id },
     select: { facultyId: true },
   });
   const registeredFacultyIds = goals.map((g) => g.facultyId);

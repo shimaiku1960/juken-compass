@@ -1,18 +1,21 @@
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ExamCalendar from "@/app/components/ExamCalendar";
 
 const Home = async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+
+  if (!session) {
     redirect("/login");
   }
 
   const goals = await prisma.finalGoal.findMany({
-    where: { profileId: user.id },
+    where: { userId: session.user.id },
     include: {
       faculty: {
         include: { university: true },

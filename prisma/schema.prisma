@@ -12,24 +12,76 @@ datasource db {
   provider = "mysql"
 }
 
-model Profile {
-  id         String      @id
-  nickname   String
-  createdAt  DateTime    @default(now())
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  
+  image         String?
+  nickname      String?
+
+  accounts   Account[]
+  sessions   Session[]
   finalGoals FinalGoal[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  emailVerified Boolean   @default(false)
+  @@map("user")
 }
+
+model Account {
+  id     String @id @default(cuid())
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  scope                 String?   @db.Text
+  
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId(length: 191)])
+  @@map("account")
+}
+
+model Session {
+  id     String @id @default(cuid())
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+
+  @@unique([token])
+  @@index([userId(length: 191)])
+  @@map("session")
+}
+
 
 model FinalGoal {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  profileId String
-  profile   Profile  @relation(fields: [profileId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   facultyId Int
   faculty   Faculty  @relation(fields: [facultyId], references: [id])
 
   isFirstChoice Boolean @default(false)
 
-  @@unique([profileId, facultyId])
+  @@unique([userId, facultyId])
 }
 
 model University {
@@ -60,4 +112,16 @@ model Tag {
   createdAt DateTime @default(now())
 
   faculties Faculty[]
+}
+
+model Verification {
+  id         String   @id
+  identifier String   @db.Text
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier(length: 191)])
+  @@map("verification")
 }

@@ -1,32 +1,32 @@
-import { createClient } from "@/lib/supabase/server";  
-import prisma from "@/lib/prisma";     
-import { NextResponse } from "next/server"; 
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
 import { profileSchema } from "@/lib/validations/profile";
 
-
-
 export const PUT = async (request: Request) => {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    if (!user) {                                                                                     
-        return NextResponse.json({ error: "未認証" }, { status: 401 });
-      }                                                                                                  
-     
-         const body = await request.json();                                                         
+  if (!session) {
+    return NextResponse.json({ error: "未認証" }, { status: 401 });
+  }
+
+  const body = await request.json();
   const result = profileSchema.safeParse(body);
 
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0].message },
+      { status: 400 }
+    );
+  }
 
-      const profile = await prisma.profile.update({
-        where: { id: user.id },
-        data: { nickname: result.data.nickname },
-      });                                                                                                
-                                                                                                       
-      return NextResponse.json(profile);        
-    };                     
+  const user = await prisma.user.update({
+    where: { id: session.user.id },
+    data: { nickname: result.data.nickname },
+  });
+
+  return NextResponse.json(user);
+};

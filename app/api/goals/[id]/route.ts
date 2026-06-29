@@ -1,45 +1,45 @@
-import { NextResponse } from "next/server";                                                                                                                                 
-import { createClient } from "@/lib/supabase/server";                                                                                                                       
-import prisma from "@/lib/prisma";                                                                                                                                          
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { updateGoalSchema, firstChoiceSchema } from "@/lib/validations/goal";
-                                                                                                                                                                            
-                                                                                                                                                                     
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {                                                                                                                                                                         
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();                                                                                                                 
-                                                                                                                                                                          
-  if (!user) {
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }                                                                                                                                                                         
- 
-  const { id } = await params;                                                                                                                                              
-                                                                                                                                                                          
+  }
+
+  const { id } = await params;
+
   const body = await request.json();
   const parsed = updateGoalSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
-  }                                                                                                                                                                         
- 
-  const goal = await prisma.finalGoal.findUnique({                                                                                                                          
-    where: { id: Number(id) },                                                                                                                                            
+  }
+
+  const goal = await prisma.finalGoal.findUnique({
+    where: { id: Number(id) },
   });
 
-  if (!goal || goal.profileId !== user.id) {
+  if (!goal || goal.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }                                                                                                                                                                         
- 
-  const updated = await prisma.finalGoal.update({                                                                                                                           
-    where: { id: Number(id) },                                                                                                                                            
+  }
+
+  const updated = await prisma.finalGoal.update({
+    where: { id: Number(id) },
     data: {
-      ...(parsed.data.facultyId && { facultyId: parsed.data.facultyId }),                                                                                            
+      ...(parsed.data.facultyId && { facultyId: parsed.data.facultyId }),
     },
-  });                                                                                                                                                                       
-                                                                                                                                                                          
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -47,10 +47,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -67,7 +68,7 @@ export async function PATCH(
     where: { id: Number(id) },
   });
 
-  if (!goal || goal.profileId !== user.id) {
+  if (!goal || goal.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -75,7 +76,7 @@ export async function PATCH(
     // 第一志望は1ユーザー1校まで。既存の第一志望を全部外してから付け替える
     await prisma.$transaction([
       prisma.finalGoal.updateMany({
-        where: { profileId: user.id },
+        where: { userId: session.user.id },
         data: { isFirstChoice: false },
       }),
       prisma.finalGoal.update({
@@ -97,10 +98,11 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -110,7 +112,7 @@ export async function DELETE(
     where: { id: Number(id) },
   });
 
-  if (!goal || goal.profileId !== user.id) {
+  if (!goal || goal.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -120,5 +122,3 @@ export async function DELETE(
 
   return NextResponse.json({ message: "Deleted" });
 }
-
-
