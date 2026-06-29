@@ -18,10 +18,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            cd juken-compass
+            cd juken-map
             git fetch origin
             git reset --hard origin/main
             git clean -fd
             npm install
             npm run build
-            pm2 restart juken-compass
+            pm2 restart juken-map
