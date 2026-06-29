@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "受験マップ",
   description: "受験校の受験日程を管理する受験生向けサービス",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
