@@ -26,7 +26,7 @@ type Faculty = {
 type Goal = {
   id: number;
   createdAt: Date;
-  profileId: string;
+  userId: string;
   isFirstChoice: boolean;
   faculty: Faculty;
 };

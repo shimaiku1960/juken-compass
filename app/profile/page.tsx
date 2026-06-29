@@ -1,29 +1,25 @@
-import { createClient } from "@/lib/supabase/server";                                                
-import prisma from "@/lib/prisma";                                                                   
-import { redirect } from "next/navigation"; 
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import ProfileEdit from "@/app/components/ProfileEdit";
 import GoalList from "@/app/components/GoalList";
 import { Card, CardContent } from "@/components/ui/card";
-                                                                                                       
-const ProfilePage = async () => {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
+const ProfilePage = async () => {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session) {
         redirect("/login");
     }
 
-    const profile = await prisma.profile.findUnique({
-        where: { id: user.id },
-    });
-
-
-    if (!profile) {
-        redirect("/login");
-      }
+    const user = session.user;
+    const nickname = user.nickname ?? user.name ?? "ユーザー";
 
     const goals = await prisma.finalGoal.findMany({
-        where: { profileId: user.id },
+        where: { userId: user.id },
         include: {
           faculty: {
             include: { university: true, tags: true },
@@ -45,13 +41,13 @@ const ProfilePage = async () => {
     <CardContent className="divide-y">
       <div className="flex items-center gap-3 pb-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700">
-          {profile.nickname.charAt(0)}
+          {nickname.charAt(0)}
         </div>
-        <p className="font-medium">{profile.nickname}</p>
+        <p className="font-medium">{nickname}</p>
       </div>
       <div className="py-4">
         <p className="text-sm text-gray-500 mb-1">ニックネーム</p>
-        <ProfileEdit currentNickname={profile.nickname} />
+        <ProfileEdit currentNickname={user.nickname ?? ""} />
       </div>
       <div className="pt-4">
         <p className="text-sm text-gray-500 mb-1">メールアドレス</p>
