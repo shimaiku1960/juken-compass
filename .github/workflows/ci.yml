@@ -35,6 +35,6 @@ jobs:
         env:
             MICROCMS_SERVICE_DOMAIN: dummy
             MICROCMS_API_KEY: dummy
-            DATABASE_URL: postgresql://u:p@localhost:5432/db
-            NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
-            NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+            DATABASE_URL: mysql://u:p@localhost:3306/db
+            BETTER_AUTH_SECRET: ecPTNJXeffEkIMhtDiAKQI8X/dv0xZ5PWupA15w9rVU=
+            BETTER_AUTH_URL: http://localhost:3000
