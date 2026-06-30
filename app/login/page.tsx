@@ -6,25 +6,12 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSignUp = async () => {
-    const { error } = await authClient.signUp.email({
-      email,
-      password,
-      name: email,
-    });
-    if (error) {
-      toast.error(error.message ?? "登録に失敗しました");
-      return;
-    }
-    toast.success("登録しました");
-    router.push("/");
-  };
 
   const handleSignIn = async () => {
     const { error } = await authClient.signIn.email({
@@ -57,14 +44,23 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="flex gap-3 mb-6">
-        <Button className="flex-1" onClick={handleSignIn}>
-          ログイン
-        </Button>
-        <Button className="flex-1" variant="outline" onClick={handleSignUp}>
-          新規登録
-        </Button>
-      </div>
+      <Button className="w-full mb-6" onClick={handleSignIn}>
+        ログイン
+      </Button>
+
+      <Link
+        href="/signup"
+        className="block text-sm text-muted-foreground underline mb-3 text-center"
+      >
+        アカウントをお持ちでない方はこちら
+      </Link>
+
+      <Link
+        href="/forgot-password"
+        className="block text-sm text-muted-foreground underline mb-6 text-center"
+      >
+        パスワードを忘れた方はこちら
+      </Link>
 
       <Button
         className="w-full"

@@ -5,8 +5,19 @@ export const proxy = async (request: NextRequest) => {
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
 
-  const publicPaths = ["/", "/login"];
-  const isPublic = publicPaths.includes(pathname);
+  // 誰でも見れるページ（トップ "/" はアカウント持ちのみなので含めない）
+  const publicPaths = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/blog",
+  ];
+  // 動的ルート（/articles/xxx）は前方一致で公開判定
+  const publicPrefixes = ["/articles"];
+  const isPublic =
+    publicPaths.includes(pathname) ||
+    publicPrefixes.some((prefix) => pathname.startsWith(prefix));
 
   // 未ログインで API を叩いたら 401
   if (!sessionCookie && pathname.startsWith("/api/")) {
