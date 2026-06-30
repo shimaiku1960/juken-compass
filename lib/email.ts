@@ -1,9 +1,9 @@
-import { resend } from "@/lib/resend";
+import { getResend } from "@/lib/resend";
 
 const FROM = "受験マップ <onboarding@resend.dev>";
 
 export async function sendVerificationEmail(to: string, url: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to,
     subject: "【受験マップ】メールアドレスの確認",
@@ -13,7 +13,7 @@ export async function sendVerificationEmail(to: string, url: string) {
 }
 
 export async function sendPasswordResetEmail(to: string, url: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to,
     subject: "【受験マップ】パスワードの再設定",
