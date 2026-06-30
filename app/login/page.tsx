@@ -23,6 +23,7 @@ export default function LoginPage() {
       return;
     }
     router.push("/");
+    router.refresh();
   };
 
   return (
