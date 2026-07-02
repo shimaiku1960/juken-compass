@@ -11,6 +11,24 @@ services:
       MYSQL_PASSWORD: jukenpassword
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: juken-map-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: "mysql://juken:jukenpassword@db:3306/juken_map?allowPublicKeyRetrieval=true"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   mysql_data:

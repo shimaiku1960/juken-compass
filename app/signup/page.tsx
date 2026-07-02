@@ -24,8 +24,8 @@ export default function SignUpPage() {
       return;
     }
     toast.success("登録しました");
-    router.push("/");
     router.refresh();
+    router.push("/");
   };
 
   return (
