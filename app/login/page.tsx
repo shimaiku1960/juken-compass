@@ -22,8 +22,8 @@ export default function LoginPage() {
       toast.error(error.message ?? "ログインに失敗しました");
       return;
     }
-    router.push("/");
     router.refresh();
+    router.push("/");
   };
 
   return (
