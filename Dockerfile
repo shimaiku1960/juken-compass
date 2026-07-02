@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ENV BUILD_STANDALONE=true
 RUN npx prisma generate && npx next build
 
 FROM node:24-slim AS runner
